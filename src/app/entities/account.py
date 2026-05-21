@@ -3,7 +3,7 @@ from pydantic import BaseModel, field_validator
 class Account(BaseModel):
     name : str
     agency: str
-    account: str
+    account_id: str
     current_balance: float
 
     @field_validator("current_balance")

@@ -1,6 +1,8 @@
 from fastapi import FastAPI, HTTPException
 from mangum import Mangum
 
+from src.app.routes import account_routes
+
 from .environments import Environments
 
 from .errors.entity_errors import ParamNotValidated
@@ -12,11 +14,19 @@ from .entities.item import Item
 
 app = FastAPI()
 
+app.include_router(account_routes)
+
 repo = Environments.get_item_repo()()
 
 # a baixo estão as rotas da api
 # elas interagem com os métodos de repositório. por exemplo a rota create item chama, não exclusivamente,
 # o método repo.create_item() para criar o item no nosso repositório
+
+
+# esse comando serve para um teste simples da API 
+#@app.get("/")
+#def root():
+#    return {"message: Hello World"}
 
 @app.get("/items/get_all_items")
 def get_all_items():
