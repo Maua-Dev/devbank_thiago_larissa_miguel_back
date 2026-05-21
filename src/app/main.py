@@ -14,7 +14,7 @@ from .entities.item import Item
 
 app = FastAPI()
 
-app.include_router(account_routes)
+app.include_router(account_routes.router)
 
 repo = Environments.get_item_repo()()
 
