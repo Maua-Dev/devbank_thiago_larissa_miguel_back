@@ -13,42 +13,42 @@ class AccountRepositoryMock(AccountRepository):
             Account(
                 name="Yuri Alberto",
                 agency="0001",
-                account_id="a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                account_id="10001-1",
                 current_balance=1500.00
             ),
 
             Account(
                 name="Rodrigo Garro",
                 agency="0042",
-                account_id="b2c3d4e5-f6a7-8901-bcde-f12345678901",
+                account_id="10002-2",
                 current_balance=320.75
             ),
 
             Account(
                 name="Hugo Souza",
                 agency="0107",
-                account_id="c3d4e5f6-a7b8-9012-cdef-123456789012",
+                account_id="10003-3",
                 current_balance=0.00 
             ),
 
             Account(
                 name="Gustavo Henrique",
                 agency="0233",
-                account_id="d4e5f6a7-b8c9-0123-defa-234567890123",
+                account_id="10004-4",
                 current_balance=8750.50 
             ),
 
             Account(
                 name="Matheus Bidu",
                 agency="0015",
-                account_id="e5f6a7b8-c9d0-1234-efab-345678901234",
+                account_id="10005-5",
                 current_balance=150.30     
             ),
 
             Account(
                 name="Breno Bidon",
                 agency="0388",
-                account_id="f6a7b8c9-d0e1-2345-fabc-456789012345",
+                account_id="10006-6",
                 current_balance=22400.00        
             ) 
         ]
