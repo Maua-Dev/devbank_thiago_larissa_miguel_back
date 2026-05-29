@@ -5,13 +5,13 @@ from uuid import uuid4, UUID
 
 from pydantic import BaseModel, Field, field_validator
 
-from src.app.enums import transactionType
+from src.app.enums.transactionType import TransactionType  # ← classe, não módulo
 
 
 class Transaction(BaseModel):
     id: UUID = Field(default_factory=uuid4) # geração automática de ID 
     account_id: str 
-    transaction_type: transactionType # Lari/Miguel deem uma olhada na class transactionType 
+    transaction_type: TransactionType   # Lari/Miguel deem uma olhada na class transactionType 
     amount: Decimal # IMPORTANTE -> coloquei type Decimal 
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc)

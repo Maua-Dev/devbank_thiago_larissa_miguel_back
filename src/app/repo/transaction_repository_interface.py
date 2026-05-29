@@ -3,8 +3,7 @@ from typing import List
 from typing import Optional
 from uuid import UUID
 
-from entities.transaction import Transaction
-
+from src.app.entities.transaction import Transaction
 
 class TransactionRepository(ABC):
 

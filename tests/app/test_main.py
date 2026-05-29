@@ -1,8 +1,10 @@
 from fastapi.exceptions import HTTPException
 import pytest
 import src.app.main as main_module
-from src.app.main import get_all_items, get_item, create_item, delete_item, update_item
+from src.app.main import get_all_items, get_item, create_item, delete_item, update_item, execute_get_para_barra, deposit
 from src.app.repo.item_repository_mock import ItemRepositoryMock
+from src.app.repo.account_repository_mock import AccountRepositoryMock
+from src.app.repo.transaction_repository_mock import TransactionRepositoryMock
 
 
 class Test_Main:
@@ -16,6 +18,14 @@ class Test_Main:
     def setup_method(self):
         # Reset do repositorio global usado em src.app.main a cada teste
         main_module.repo = ItemRepositoryMock()
+
+    def teste_execute_get_para_barra(self):
+        repo = AccountRepositoryMock()
+        response = execute_get_para_barra()
+
+        assert response.get("name", None) != "Vitor soller"   
+        print(response.get("name", None) == "Yuri Alberto")
+        assert response.get("name", None) == "Yuri Alberto"
 
     def test_get_all_items(self):
         repo = ItemRepositoryMock()

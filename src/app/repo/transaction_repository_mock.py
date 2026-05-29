@@ -2,9 +2,9 @@ from decimal import Decimal
 from typing import List, Optional
 from uuid import UUID
 
-from transaction_repository_interface import TransactionRepository
-from entities.transaction import Transaction
-from enums.transactionType import TransactionType
+from src.app.entities.transaction import Transaction
+from src.app.repo.transaction_repository_interface import TransactionRepository
+from src.app.enums.transactionType import TransactionType
 
 class TransactionRepositoryMock(TransactionRepository):
 

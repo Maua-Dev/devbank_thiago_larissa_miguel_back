@@ -1,6 +1,8 @@
 from fastapi import FastAPI, HTTPException
 from mangum import Mangum
 
+from pydantic import BaseModel
+
 from src.app.routes import account_routes
 
 from .environments import Environments
@@ -11,12 +13,17 @@ from .enums.item_type_enum import ItemTypeEnum
 
 from .entities.item import Item
 
+from src.app.enums.transactionType import TransactionType
+from src.app.entities.transaction import Transaction  # ← adicione essa linha
+
 
 app = FastAPI()
 
 app.include_router(account_routes.router)
 
 repo = Environments.get_item_repo()()
+account_repo = Environments.get_account_repo()()    # get firts account
+transaction_repo = Environments.get_transaction_repo()()
 
 # a baixo estão as rotas da api
 # elas interagem com os métodos de repositório. por exemplo a rota create item chama, não exclusivamente,
@@ -27,6 +34,56 @@ repo = Environments.get_item_repo()()
 #@app.get("/")
 #def root():
 #    return {"message: Hello World"}
+
+@app.get("/")# o / é aonde vai estar o endpoint ( pode ter o msm end point para metodos diferentes so tem q identificar)
+def execute_get_para_barra():
+    account = account_repo.get_account("10001-1") # preciso puxar um usuarioo mock (account_ did), preferi puxando so um usuario do q todos
+    return account.__dict__ # tranforma diretamente para dicionario (tranforma os parametros para json)
+ 
+class DepositRequest(BaseModel): # essa classe serve para definir o formato do body da requisição ou seja ela vai validar o json q sera passado
+    amount: float
+
+class TransactionRequest(BaseModel):
+    account_id: str
+    transaction_type: TransactionType  # agora sim é o Enum
+    amount: float
+
+@app.post("/deposit")
+def deposit(request: DepositRequest): # aqui ele ja é passado sendo valido e em json
+
+    amount = request.amount # guarda o valor passado em uma variavel
+
+    if amount <= 0:
+        raise HTTPException(
+            status_code=400,
+            detail="Valor inválido"
+        )
+
+    account = account_repo.get_account("10001-1") # pegar do mock esse usuario e ver o salfo
+
+    if float(account.current_balance) > 0 and amount >= 2 * float(account.current_balance):
+        raise HTTPException(
+                status_code=403,
+                detail="Depósito suspeito"
+            )
+
+    new_balance = float(account.current_balance) + amount # calculo do q foi depositado + oq a pessoa tinha ja
+
+    account_repo.update_account( "10001-1", current_balance=new_balance) # salva o novo saldo da conta
+
+    transaction = Transaction( # cria uma representaçao da transação
+        account_id="10001-1",
+        transaction_type=TransactionType.DEPOSIT,
+        amount=amount
+    )
+
+    created_transaction = transaction_repo.create_transaction(transaction) # salva essa representação
+
+    return { # retorna o novo saldo e o id da transação criada
+        "current_balance": new_balance,
+        "transaction_id": str(created_transaction.id),
+        "timestamp": created_transaction.created_at.timestamp() * 1000
+    }
 
 @app.get("/items/get_all_items")
 def get_all_items():
