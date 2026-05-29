@@ -16,7 +16,7 @@ class Test_Main:
     INVALID_UUID_STRING = "1"
 
     def setup_method(self):
-        # Reset do repositorio global usado em src.app.main a cada teste
+    # Reset do repositorio global usado em src.app.main a cada teste
         main_module.repo = ItemRepositoryMock()
 
     def teste_execute_get_para_barra(self):

@@ -13,6 +13,8 @@ from .enums.item_type_enum import ItemTypeEnum
 
 from .entities.item import Item
 
+from decimal import Decimal
+
 from src.app.enums.transactionType import TransactionType
 from src.app.entities.transaction import Transaction  # ← adicione essa linha
 
@@ -74,7 +76,8 @@ def deposit(request: DepositRequest): # aqui ele ja é passado sendo valido e em
     transaction = Transaction( # cria uma representaçao da transação
         account_id="10001-1",
         transaction_type=TransactionType.DEPOSIT,
-        amount=amount
+        amount=Decimal(str(amount)),
+        current_balance=Decimal(str(new_balance))
     )
 
     created_transaction = transaction_repo.create_transaction(transaction) # salva essa representação
@@ -206,6 +209,66 @@ def update_item(request: dict):
     return {
         "item_id": item_id,
         "item": item_updated.to_dict()    
+    }
+
+VALID_BILLS = {"2", "5", "10", "20", "50", "100", "200"}
+
+@app.post("/withdraw")
+def withdraw(request: dict):
+
+    amount = sum(
+        int(bill) * request.get(bill, 0)
+        for bill in VALID_BILLS
+    )
+
+    if amount <= 0:
+        raise HTTPException(
+            status_code=400,
+            detail="Valor inválido: nenhuma cédula informada ou total zerado"
+        )
+
+    account = account_repo.get_account("10001-1")
+
+    if float(account.current_balance) < amount:
+        raise HTTPException(
+            status_code=403,
+            detail="Saldo insuficiente para transação"
+        )
+
+    new_balance = float(account.current_balance) - amount
+
+    account_repo.update_account("10001-1", current_balance=new_balance)
+
+    transaction = Transaction(
+        account_id="10001-1",
+        transaction_type=TransactionType.WITHDRAW,
+        amount=Decimal(str(amount)),
+        current_balance=Decimal(str(new_balance))
+    )
+
+    created_transaction = transaction_repo.create_transaction(transaction)
+
+    return {
+        "current_balance": new_balance,
+        "timestamp": created_transaction.created_at.timestamp() * 1000
+    }
+
+
+@app.get("/history")
+def history():
+    # retorna todas as transações da conta "10001-1" em ordem cronológica
+    transactions = transaction_repo.get_history("10001-1")
+
+    return {
+        "all_transactions": [
+            {
+                "type": t.transaction_type.value,
+                "value": float(t.amount),
+                "current_balance": float(t.current_balance),
+                "timestamp": t.created_at.timestamp() * 1000
+            }
+            for t in transactions
+        ]
     }
     
 
