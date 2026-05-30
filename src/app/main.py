@@ -83,6 +83,7 @@ def deposit(amount: float):
     return { # retorna o novo saldo e o id da transação criada
         "current_balance": new_balance,
         "transaction_id": str(created_transaction.id),
+        "amount": amount,
         "timestamp": created_transaction.created_at.timestamp() * 1000
     }
 
