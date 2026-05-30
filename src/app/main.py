@@ -51,9 +51,7 @@ class TransactionRequest(BaseModel):
     amount: float
 
 @app.post("/deposit")
-def deposit(request: DepositRequest): # aqui ele ja é passado sendo valido e em json
-
-    amount = request.amount # guarda o valor passado em uma variavel
+def deposit(amount: float):
 
     if amount <= 0:
         raise HTTPException(

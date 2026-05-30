@@ -18,7 +18,9 @@ class Test_Main:
     def setup_method(self):
     # Reset do repositorio global usado em src.app.main a cada teste
         main_module.repo = ItemRepositoryMock()
-
+        main_module.account_repo = AccountRepositoryMock()
+        main_module.transaction_repo = TransactionRepositoryMock()
+        
     def teste_execute_get_para_barra(self):
         repo = AccountRepositoryMock()
         response = execute_get_para_barra()
@@ -26,6 +28,53 @@ class Test_Main:
         assert response.get("name", None) != "Vitor soller"   
         print(response.get("name", None) == "Yuri Alberto")
         assert response.get("name", None) == "Yuri Alberto"
+
+    def test_deposito_simples(self):
+        response = deposit(amount=100.0)
+ 
+        assert response.get("current_balance") == 1600.0  
+ 
+    def test_deposito_retorna_transaction_id(self):
+        response = deposit(amount=100.0)
+ 
+        assert response.get("transaction_id") is not None
+ 
+    def test_deposito_retorna_timestamp(self):
+        response = deposit(amount=100.0)
+ 
+        assert response.get("timestamp") is not None
+ 
+    def test_deposito_zero_retorna_400(self):
+        with pytest.raises(HTTPException) as err:
+            deposit(amount=0.0)
+ 
+        assert err.value.status_code == 400
+ 
+    def test_deposito_negativo_retorna_400(self):
+        with pytest.raises(HTTPException) as err:
+            deposit(amount=-50.0)
+ 
+        assert err.value.status_code == 400
+ 
+    def test_deposito_suspeito_retorna_403(self):
+        with pytest.raises(HTTPException) as err:
+            deposit(amount=3000.0)
+ 
+        assert err.value.status_code == 403
+        assert err.value.detail == "Depósito suspeito"
+ 
+    def test_deposito_acima_do_dobro_retorna_403(self):
+        with pytest.raises(HTTPException) as err:
+            deposit(amount=3200.0)
+ 
+        assert err.value.status_code == 403
+        assert err.value.detail == "Depósito suspeito"
+ 
+    def test_deposito_com_saldo_zero_nao_bloqueia(self):
+        main_module.account_repo.update_account("10001-1", current_balance=0.0)
+        response = deposit(amount=100.0)
+ 
+        assert response.get("current_balance") == 100.0
 
     def test_get_all_items(self):
         repo = ItemRepositoryMock()
