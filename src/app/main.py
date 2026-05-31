@@ -210,15 +210,8 @@ def update_item(request: dict):
         "item": item_updated.to_dict()    
     }
 
-VALID_BILLS = {"2", "5", "10", "20", "50", "100", "200"}
-
 @app.post("/withdraw")
-def withdraw(request: dict):
-
-    amount = sum(
-        int(bill) * request.get(bill, 0)
-        for bill in VALID_BILLS
-    )
+def withdraw(amount: float):
 
     if amount <= 0:
         raise HTTPException(
@@ -249,26 +242,33 @@ def withdraw(request: dict):
 
     return {
         "current_balance": new_balance,
+        "transaction_id": str(created_transaction.id),
+        "amount": amount,   
         "timestamp": created_transaction.created_at.timestamp() * 1000
     }
 
 
 @app.get("/history")
 def history():
-    # retorna todas as transações da conta "10001-1" em ordem cronológica
     transactions = transaction_repo.get_history("10001-1")
+    account = account_repo.get_account("10001-1")
 
-    return {
-        "all_transactions": [
-            {
-                "type": t.transaction_type.value,
-                "value": float(t.amount),
-                "current_balance": float(t.current_balance),
-                "timestamp": t.created_at.timestamp() * 1000
-            }
-            for t in transactions
-        ]
-    }
+    running_balance = float(account.current_balance)
+    result = []
+
+    for t in reversed(transactions):
+        result.insert(0, {
+            "type": t.transaction_type.value,
+            "value": float(t.amount),
+            "current_balance": running_balance,
+            "timestamp": t.created_at.timestamp() * 1000
+        })
+        if t.transaction_type == TransactionType.DEPOSIT:
+            running_balance -= float(t.amount)
+        else:
+            running_balance += float(t.amount)
+
+    return {"all_transactions": result}
     
 
 
