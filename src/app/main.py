@@ -3,7 +3,7 @@ from mangum import Mangum
 
 from pydantic import BaseModel
 
-from src.app.routes import account_routes
+from .routes import account_routes
 
 from .environments import Environments
 
@@ -15,8 +15,8 @@ from .entities.item import Item
 
 from decimal import Decimal
 
-from src.app.enums.transactionType import TransactionType
-from src.app.entities.transaction import Transaction  # ← adicione essa linha
+from .enums.transactionType import TransactionType
+from .entities.transaction import Transaction
 
 
 app = FastAPI()

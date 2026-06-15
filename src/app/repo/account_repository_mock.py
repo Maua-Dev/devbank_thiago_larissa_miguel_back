@@ -1,6 +1,6 @@
 from typing import List, Optional
-from src.app.entities.account import Account
-from src.app.repo.account_repository_interface import AccountRepository
+from ..entities.account import Account
+from .account_repository_interface import AccountRepository
 
 
 class AccountRepositoryMock(AccountRepository):

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional
 
-from src.app.entities.account import Account
+from ..entities.account import Account
 
 
 class AccountRepository(ABC): # interface que define uma classe abstrata que será implementada no mock

@@ -5,7 +5,7 @@ from uuid import uuid4, UUID
 
 from pydantic import BaseModel, Field, field_validator
 
-from src.app.enums.transactionType import TransactionType  # ← classe, não módulo
+from ..enums.transactionType import TransactionType
 
 
 class Transaction(BaseModel):
